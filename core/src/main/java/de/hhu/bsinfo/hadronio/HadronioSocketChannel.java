@@ -8,6 +8,7 @@ import de.hhu.bsinfo.hadronio.util.MemoryUtil.Alignment;
 import de.hhu.bsinfo.hadronio.util.MessageUtil;
 import de.hhu.bsinfo.hadronio.util.RingBuffer;
 import de.hhu.bsinfo.hadronio.util.TagUtil;
+import org.agrona.BufferUtil;
 import org.agrona.MutableDirectBuffer;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.MessageHandler;
@@ -329,6 +330,7 @@ public class HadronioSocketChannel extends SocketChannel implements HadronioSele
         endpoint.close();
         sendBuffer.alignedBuffer().free();
         receiveBuffer.alignedBuffer().free();
+        BufferUtil.free(flushBuffer);
     }
 
     @Override

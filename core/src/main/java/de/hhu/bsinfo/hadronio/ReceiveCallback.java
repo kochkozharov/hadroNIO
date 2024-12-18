@@ -2,7 +2,9 @@ package de.hhu.bsinfo.hadronio;
 
 import de.hhu.bsinfo.hadronio.binding.UcxReceiveCallback;
 import de.hhu.bsinfo.hadronio.generated.DebugConfig;
+import de.hhu.bsinfo.hadronio.util.MemoryUtil;
 import de.hhu.bsinfo.hadronio.util.TagUtil;
+import org.agrona.BufferUtil;
 import org.agrona.concurrent.AtomicBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.slf4j.Logger;
@@ -32,6 +34,7 @@ class ReceiveCallback implements UcxReceiveCallback {
 
         flushBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(Long.BYTES));
         flushBuffer.putLong(0, HadronioSocketChannel.FLUSH_ANSWER);
+        BufferUtil.free(flushBuffer);
     }
 
     @Override
