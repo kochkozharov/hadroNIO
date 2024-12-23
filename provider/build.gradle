@@ -19,7 +19,7 @@ compileJava {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(Boolean.parseBoolean(System.getProperty('infinileap')) ? 20 : 11))
+        languageVersion.set(JavaLanguageVersion.of(Boolean.parseBoolean(System.getProperty('infinileap')) ? 20 : 17))
     }
 }
 
