@@ -38,8 +38,8 @@ public class HadronioSocketChannel extends SocketChannel implements HadronioSele
     private final UcxEndpoint endpoint;
     private final Configuration configuration;
 
-    private final RingBuffer sendBuffer;
-    private final RingBuffer receiveBuffer;
+    private RingBuffer sendBuffer;
+    private RingBuffer receiveBuffer;
     private final ByteBuffer[] singleBufferArray = new ByteBuffer[1];
 
     final AtomicBoolean padding = new AtomicBoolean();
@@ -47,7 +47,7 @@ public class HadronioSocketChannel extends SocketChannel implements HadronioSele
     final AtomicBoolean messageCompleted = new AtomicBoolean();
     private final ReadHandler readHandler = new ReadHandler(this, padding, readBytes, messageCompleted);
 
-    private final AtomicBuffer flushBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(Long.BYTES));
+    private AtomicBuffer flushBuffer = new UnsafeBuffer(ByteBuffer.allocateDirect(Long.BYTES));
     private final AtomicBoolean isFlushing = new AtomicBoolean();
     private final AtomicInteger readableMessages = new AtomicInteger();
     private long sendCounter;
@@ -326,6 +326,9 @@ public class HadronioSocketChannel extends SocketChannel implements HadronioSele
         inputClosed = true;
         outputClosed = true;
         connected = false;
+        sendBuffer = null;
+        receiveBuffer = null;
+        flushBuffer = null;
         endpoint.close();
     }
 

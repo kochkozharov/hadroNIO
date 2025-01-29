@@ -144,6 +144,8 @@ class JucxEndpoint implements UcxEndpoint {
     public void close() {
         LOGGER.info("Closing endpoint");
         if (endpoint != null) {
+            sendCallback = null;
+            receiveCallback = null;
             endpoint.close();
         }
     }
