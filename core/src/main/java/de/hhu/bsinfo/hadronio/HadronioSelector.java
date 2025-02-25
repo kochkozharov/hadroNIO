@@ -177,6 +177,7 @@ class HadronioSelector extends AbstractSelector {
             synchronized (keys) {
                 synchronized (selectedKeys) {
                     boolean firstIteration = true;
+                    removeCancelledKeys();
                     pollWorkers(false, 0);
 
                     int updatedKeys = 0;
