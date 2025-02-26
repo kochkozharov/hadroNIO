@@ -102,6 +102,7 @@ class HadronioSelector extends AbstractSelector {
             synchronized (wakeupLock) {
                 if (pollMethod != Configuration.PollMethod.BUSY_POLLING) {
                     registerChannelToEpoll((HadronioSelectableChannel) channel);
+                    ((HadronioSelectableChannel) channel).setCloseCallback(this::removeChannelFromEpoll);
                 }
 
                 keys.add(key);
@@ -382,10 +383,6 @@ class HadronioSelector extends AbstractSelector {
             if (!cancelledKeys().isEmpty()) {
                 if (DebugConfig.DEBUG) LOGGER.trace("Removing [{}] cancelled {}", cancelledKeys().size(), cancelledKeys().size() == 1 ? "key" : "keys");
                 for (final var key : cancelledKeys()) {
-                    if (pollMethod == Configuration.PollMethod.EPOLL || pollMethod == Configuration.PollMethod.DYNAMIC) {
-                        removeChannelFromEpoll((HadronioSelectableChannel) key.channel());
-                    }
-
                     workers.remove(((HadronioSelectableChannel) key.channel()).getWorker());
                 }
 

@@ -6,6 +6,7 @@ import de.hhu.bsinfo.hadronio.binding.UcxWorker;
 import java.util.Stack;
 
 import de.hhu.bsinfo.hadronio.generated.DebugConfig;
+import de.hhu.bsinfo.hadronio.util.CloseCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,8 @@ public class HadronioServerSocketChannel extends ServerSocketChannel implements 
     private boolean channelClosed = false;
     private boolean channelBound = false;
     private int readyOps;
+
+    private CloseCallback<HadronioSelectableChannel> closeCallback;
 
     public HadronioServerSocketChannel(final SelectorProvider provider, final UcxListener listener) throws IOException {
         super(provider);
@@ -146,6 +149,9 @@ public class HadronioServerSocketChannel extends ServerSocketChannel implements 
     @Override
     protected void implCloseSelectableChannel() throws IOException {
         if (DebugConfig.DEBUG) LOGGER.debug("Closing server socket channel bound to [{}]", getLocalAddress());
+        if (closeCallback != null) {
+            closeCallback.onClose(this);
+        }
         channelClosed = true;
         listener.close();
     }
@@ -168,6 +174,11 @@ public class HadronioServerSocketChannel extends ServerSocketChannel implements 
     @Override
     public UcxWorker getWorker() {
         return listener.getWorker();
+    }
+
+    @Override
+    public void setCloseCallback(CloseCallback<HadronioSelectableChannel> callback) {
+        this.closeCallback = callback;
     }
 
     boolean isBound() {
