@@ -177,7 +177,7 @@ public class HadronioServerSocketChannel extends ServerSocketChannel implements 
     }
 
     @Override
-    public void setCloseCallback(CloseCallback<HadronioSelectableChannel> callback) {
+    public void setCloseCallback(final CloseCallback<HadronioSelectableChannel> callback) {
         this.closeCallback = callback;
     }
 

@@ -2,5 +2,5 @@ package de.hhu.bsinfo.hadronio.util;
 
 @FunctionalInterface
 public interface CloseCallback<T> {
-    void onClose(T obj);
+    void onClose(final T obj);
 }
