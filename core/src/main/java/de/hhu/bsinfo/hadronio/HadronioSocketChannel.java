@@ -3,7 +3,7 @@ package de.hhu.bsinfo.hadronio;
 import de.hhu.bsinfo.hadronio.binding.UcxEndpoint;
 import de.hhu.bsinfo.hadronio.binding.UcxWorker;
 import de.hhu.bsinfo.hadronio.generated.DebugConfig;
-import de.hhu.bsinfo.hadronio.util.MemoryUtil;
+import de.hhu.bsinfo.hadronio.util.*;
 import de.hhu.bsinfo.hadronio.util.MemoryUtil.Alignment;
 import de.hhu.bsinfo.hadronio.util.MessageUtil;
 import de.hhu.bsinfo.hadronio.util.RingBuffer;
@@ -63,6 +63,8 @@ public class HadronioSocketChannel extends SocketChannel implements HadronioSele
     private boolean outputClosed = false;
     private boolean channelClosed = false;
     private int readyOps;
+
+    private CloseCallback<HadronioSelectableChannel> closeCallback;
 
     public HadronioSocketChannel(final SelectorProvider provider, final UcxEndpoint endpoint) {
         super(provider);
@@ -322,6 +324,9 @@ public class HadronioSocketChannel extends SocketChannel implements HadronioSele
     @Override
     protected void implCloseSelectableChannel() throws IOException {
         if (DebugConfig.DEBUG) LOGGER.debug("Closing socket channel");
+        if (closeCallback != null) {
+            closeCallback.onClose(this);
+        }
         channelClosed = true;
         inputClosed = true;
         outputClosed = true;
@@ -385,6 +390,11 @@ public class HadronioSocketChannel extends SocketChannel implements HadronioSele
     @Override
     public UcxWorker getWorker() {
         return endpoint.getWorker();
+    }
+
+    @Override
+    public void setCloseCallback(final CloseCallback<HadronioSelectableChannel> callback) {
+        this.closeCallback = callback;
     }
 
     private void flush() {

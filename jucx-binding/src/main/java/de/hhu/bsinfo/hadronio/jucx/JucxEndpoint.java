@@ -164,6 +164,9 @@ class JucxEndpoint implements UcxEndpoint {
                 }
             }
         }
+        if (worker != null) {
+            worker.close();
+        }
     }
 
     void handleError() {
