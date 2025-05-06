@@ -5,6 +5,7 @@ import de.hhu.bsinfo.hadronio.binding.UcxEndpoint;
 import de.hhu.bsinfo.hadronio.binding.UcxReceiveCallback;
 import de.hhu.bsinfo.hadronio.binding.UcxSendCallback;
 import de.hhu.bsinfo.hadronio.binding.UcxWorker;
+import de.hhu.bsinfo.hadronio.generated.DebugConfig;
 import de.hhu.bsinfo.hadronio.util.TagUtil;
 import org.openucx.jucx.ucp.*;
 import org.slf4j.Logger;
@@ -83,17 +84,16 @@ class JucxEndpoint implements UcxEndpoint {
 
     @Override
     public boolean receiveTaggedMessage(final long address, final long size, final long tag, final boolean useCallback, final boolean blocking) {
-        LOGGER.debug("Pending worker requests queue size: [{}]", pendingWorkerRequests.size());
-        final var messageType = TagUtil.getMessageType(tag);
-        final var firstRequest = pendingWorkerRequests.peek();
-        if (firstRequest != null && firstRequest.isCompleted()) {
+        if (DebugConfig.DEBUG) LOGGER.debug("Pending worker requests queue size: [{}]", pendingWorkerRequests.size());
+        final var isDefault = TagUtil.getMessageType(tag) == TagUtil.MessageType.DEFAULT;
+        while (!pendingWorkerRequests.isEmpty() && pendingWorkerRequests.peek().isCompleted()) {
             pendingWorkerRequests.remove();
         }
-        if (messageType == TagUtil.MessageType.DEFAULT && pendingWorkerRequests.size() >= MAX_COUNT_OF_WORKER_REQUESTS) {
+        if (isDefault && pendingWorkerRequests.size() >= MAX_COUNT_OF_WORKER_REQUESTS) {
             throw new IllegalStateException("Cannot create receive request: pending worker request queue is full");
         }
         final var request =  worker.getWorker().recvTaggedNonBlocking(address, size, tag, TagUtil.TAG_MASK_FULL, useCallback ? receiveCallback : null);
-        if (messageType == TagUtil.MessageType.DEFAULT) {
+        if (isDefault) {
             pendingWorkerRequests.add(request);
         }
         if (blocking) {
