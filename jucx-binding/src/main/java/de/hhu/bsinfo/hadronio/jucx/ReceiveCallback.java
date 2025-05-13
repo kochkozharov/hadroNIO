@@ -38,8 +38,4 @@ class ReceiveCallback extends UcxCallback {
         }
         endpoint.handleError();
     }
-
-    JucxEndpoint getEndpoint() {
-        return endpoint;
-    }
 }
